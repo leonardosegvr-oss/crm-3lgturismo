@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3LG Turismo CRM — V3 Integrações</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="crm_3lg_v3_integracoes.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">3LG</div>
+        <div>
+          <h1>CRM V3</h1>
+          <p>WhatsApp + Instagram integrados</p>
+        </div>
+      </div>
+
+      <nav class="menu">
+        <button class="menu-item active" data-page="dashboard">Dashboard</button>
+        <button class="menu-item" data-page="leads">Leads</button>
+        <button class="menu-item" data-page="clientes">Clientes</button>
+        <button class="menu-item" data-page="inbox">Inbox Omnichannel</button>
+        <button class="menu-item" data-page="integracoes">Integrações Meta</button>
+        <button class="menu-item" data-page="operacao">Operação</button>
+        <button class="menu-item" data-page="automacoes">Automações</button>
+        <button class="menu-item" data-page="analytics">Analytics</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="pill success">V3 Integrada</div>
+        <p>Conectores com configuração, webhook demo, sync de leads e envio via WhatsApp/Instagram.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSubtitle">Visão executiva com canais Meta conectáveis.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn secondary" id="seedBtn">Recarregar demo</button>
+          <button class="btn secondary" id="exportBtn">Exportar JSON</button>
+          <button class="btn primary" id="openLeadModalBtn">+ Captura rápida</button>
+        </div>
+      </header>
+
+      <section class="page active" id="page-dashboard">
+        <div class="hero-banner">
+          <div>
+            <span class="pill info">Meta Connectors</span>
+            <h3>CRM preparado para WhatsApp Cloud API e Instagram Messaging API</h3>
+            <p>Gerencie conexões, receba eventos simulados por webhook, crie leads automaticamente e envie mensagens pelo inbox unificado.</p>
+          </div>
+          <div class="hero-actions">
+            <button class="btn white" data-page-link="integracoes">Configurar integrações</button>
+            <button class="btn secondary" data-page-link="inbox">Abrir inbox</button>
+          </div>
+        </div>
+        <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="grid two">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Conectores ativos</h3>
+                <p>Status operacional dos canais</p>
+              </div>
+            </div>
+            <div id="connectorOverview" class="stack"></div>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Leads quentes</h3>
+                <p>Priorizados por score, canal e timing</p>
+              </div>
+            </div>
+            <div id="hotLeadsList" class="stack"></div>
+          </section>
+        </div>
+        <div class="grid two">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Eventos recentes de integração</h3>
+                <p>Webhook, sync de lead e entregas</p>
+              </div>
+            </div>
+            <div id="integrationEvents" class="stack"></div>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Próximas melhores ações</h3>
+                <p>Sugestões automáticas por lead</p>
+              </div>
+            </div>
+            <div id="nextActions" class="stack"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="page-leads">
+        <div class="toolbar">
+          <div class="toolbar-group">
+            <input id="leadSearch" class="input" placeholder="Buscar por nome, destino ou canal" />
+            <select id="leadStageFilter" class="input select">
+              <option value="all">Todas as etapas</option>
+              <option value="novo">Novo</option>
+              <option value="qualificacao">Qualificação</option>
+              <option value="cotacao">Cotação</option>
+              <option value="proposta">Proposta</option>
+              <option value="negociacao">Negociação</option>
+              <option value="fechado">Fechado</option>
+            </select>
+            <select id="leadChannelFilter" class="input select">
+              <option value="all">Todos os canais</option>
+              <option value="WhatsApp">WhatsApp</option>
+              <option value="Instagram">Instagram</option>
+              <option value="Site">Site</option>
+              <option value="Indicação">Indicação</option>
+            </select>
+          </div>
+          <div class="toolbar-group">
+            <button class="btn secondary" id="sortScoreBtn">Ordenar por score</button>
+            <button class="btn primary" id="openLeadModalBtn2">+ Novo lead</button>
+          </div>
+        </div>
+        <div class="kanban" id="kanbanBoard"></div>
+      </section>
+
+      <section class="page" id="page-clientes">
+        <div class="grid two-fixed">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Cadastro inteligente</h3>
+                <p>Cadastro rápido + dados enriquecidos por origem Meta</p>
+              </div>
+            </div>
+            <form id="clientForm" class="form-grid">
+              <div>
+                <label>Nome*</label>
+                <input class="input" name="name" required placeholder="Ex.: Renata Vieira" />
+              </div>
+              <div>
+                <label>WhatsApp*</label>
+                <input class="input" name="phone" required placeholder="(11) 99999-9999" />
+              </div>
+              <div>
+                <label>E-mail</label>
+                <input class="input" name="email" type="email" placeholder="nome@email.com" />
+              </div>
+              <div>
+                <label>Instagram</label>
+                <input class="input" name="instagram" placeholder="@perfil" />
+              </div>
+              <div>
+                <label>Canal de origem</label>
+                <select class="input select" name="source">
+                  <option>WhatsApp</option>
+                  <option>Instagram</option>
+                  <option>Site</option>
+                  <option>Indicação</option>
+                </select>
+              </div>
+              <div>
+                <label>Perfil de viagem</label>
+                <select class="input select" name="profile">
+                  <option>Casal</option>
+                  <option>Família</option>
+                  <option>Lua de mel</option>
+                  <option>Corporativo</option>
+                  <option>Solo</option>
+                </select>
+              </div>
+              <div>
+                <label>Orçamento estimado</label>
+                <input class="input" name="budget" placeholder="R$ 20.000" />
+              </div>
+              <div>
+                <label>Destino de interesse</label>
+                <input class="input" name="destination" placeholder="Itália, Cancún, Japão..." />
+              </div>
+              <div class="full">
+                <label>Observações</label>
+                <textarea class="input" name="notes" rows="4" placeholder="Preferências, restrições, timing, evento especial..."></textarea>
+              </div>
+              <div class="full form-actions">
+                <button class="btn primary" type="submit">Salvar cliente</button>
+                <button class="btn secondary" type="reset">Limpar</button>
+              </div>
+            </form>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Base de clientes</h3>
+                <p>LTV, origem e histórico comercial</p>
+              </div>
+            </div>
+            <div id="clientsList" class="stack"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="page-inbox">
+        <div class="grid two-fixed">
+          <section class="card no-padding">
+            <div class="conversation-sidebar" id="conversationList"></div>
+          </section>
+          <section class="card no-padding">
+            <div class="chat-window">
+              <div class="chat-header" id="chatHeader"></div>
+              <div class="chat-body" id="chatBody"></div>
+              <div class="chat-footer">
+                <textarea id="chatInput" class="input" rows="2" placeholder="Responder mensagem..."></textarea>
+                <div class="chat-actions between">
+                  <div class="inline-meta" id="sendChannelMeta"></div>
+                  <div class="inline-actions">
+                    <button class="btn secondary" id="templateReplyBtn">Usar template</button>
+                    <button class="btn primary" id="sendReplyBtn">Enviar via canal</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="page-integracoes">
+        <div class="grid two">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>WhatsApp Cloud API</h3>
+                <p>Conector oficial para mensagens e webhooks</p>
+              </div>
+              <span class="pill" id="whatsappStatusBadge">Desconectado</span>
+            </div>
+            <form id="whatsappForm" class="form-grid">
+              <div>
+                <label>Phone Number ID</label>
+                <input class="input" name="phoneNumberId" placeholder="123456789012345" />
+              </div>
+              <div>
+                <label>WABA ID</label>
+                <input class="input" name="wabaId" placeholder="987654321098765" />
+              </div>
+              <div>
+                <label>Webhook URL</label>
+                <input class="input" name="webhookUrl" placeholder="https://seu-backend.com/webhooks/meta" />
+              </div>
+              <div>
+                <label>Verify Token</label>
+                <input class="input" name="verifyToken" placeholder="meta_verify_token" />
+              </div>
+              <div class="full">
+                <label>Access Token (demo local)</label>
+                <input class="input" name="accessToken" placeholder="EAAG..." />
+              </div>
+              <div class="full form-actions left">
+                <button type="submit" class="btn primary">Salvar e conectar</button>
+                <button type="button" class="btn secondary" id="waDemoEventBtn">Simular webhook</button>
+                <button type="button" class="btn ghost" id="waSyncBtn">Criar lead demo</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Instagram Messaging API</h3>
+                <p>DMs, comentários qualificados e entrada de lead</p>
+              </div>
+              <span class="pill" id="instagramStatusBadge">Desconectado</span>
+            </div>
+            <form id="instagramForm" class="form-grid">
+              <div>
+                <label>Instagram Business Account ID</label>
+                <input class="input" name="igAccountId" placeholder="1784..." />
+              </div>
+              <div>
+                <label>Facebook Page ID</label>
+                <input class="input" name="pageId" placeholder="1029384756" />
+              </div>
+              <div>
+                <label>Webhook URL</label>
+                <input class="input" name="webhookUrl" placeholder="https://seu-backend.com/webhooks/meta" />
+              </div>
+              <div>
+                <label>Verify Token</label>
+                <input class="input" name="verifyToken" placeholder="meta_verify_token" />
+              </div>
+              <div class="full">
+                <label>Access Token (demo local)</label>
+                <input class="input" name="accessToken" placeholder="IGQVJ..." />
+              </div>
+              <div class="full form-actions left">
+                <button type="submit" class="btn primary">Salvar e conectar</button>
+                <button type="button" class="btn secondary" id="igDemoEventBtn">Simular DM</button>
+                <button type="button" class="btn ghost" id="igSyncBtn">Criar lead demo</button>
+              </div>
+            </form>
+          </section>
+        </div>
+
+        <div class="grid two">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Mapa técnico de integração</h3>
+                <p>Resumo do fluxo de backend recomendado</p>
+              </div>
+            </div>
+            <div class="stack" id="integrationBlueprint"></div>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Eventos recebidos</h3>
+                <p>Payloads simulados e histórico local</p>
+              </div>
+            </div>
+            <div class="stack" id="integrationEventLog"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="page-operacao">
+        <div class="grid two">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Checklist operacional dinâmico</h3>
+                <p>Documentos, emissão, comunicação e pós-venda</p>
+              </div>
+            </div>
+            <div id="opsChecklist" class="stack"></div>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Timeline unificada do cliente</h3>
+                <p>Mensagens, proposta, follow-up, pagamento e embarque</p>
+              </div>
+            </div>
+            <div id="timeline" class="timeline"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="page-automacoes">
+        <div class="grid two">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Cadências sugeridas</h3>
+                <p>Playbooks por etapa do funil</p>
+              </div>
+            </div>
+            <div id="automationList" class="stack"></div>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Regras inteligentes</h3>
+                <p>Acionamentos de alertas e ações automáticas</p>
+              </div>
+            </div>
+            <div id="rulesList" class="stack"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="page-analytics">
+        <div class="grid two">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Performance por origem</h3>
+                <p>Leads, taxa de avanço e valor projetado</p>
+              </div>
+            </div>
+            <div id="sourcePerformance" class="stack"></div>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h3>Backlog estratégico</h3>
+                <p>Melhorias sugeridas para roadmap técnico</p>
+              </div>
+            </div>
+            <div id="backlogList" class="stack"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="leadModal" class="modal">
+    <form method="dialog" class="modal-content" id="leadForm">
+      <div class="modal-header">
+        <div>
+          <h3>Captura rápida de lead</h3>
+          <p>Modelo V3 com score automático e origem por canal</p>
+        </div>
+        <button class="btn ghost small" value="cancel">Fechar</button>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label>Nome*</label>
+          <input class="input" name="name" required placeholder="Ex.: Bruno Souza" />
+        </div>
+        <div>
+          <label>Canal*</label>
+          <select class="input select" name="channel" required>
+            <option>WhatsApp</option>
+            <option>Instagram</option>
+            <option>Site</option>
+            <option>Indicação</option>
+          </select>
+        </div>
+        <div>
+          <label>Destino</label>
+          <input class="input" name="destination" placeholder="Dubai + Maldivas" />
+        </div>
+        <div>
+          <label>Orçamento estimado</label>
+          <input class="input" name="budget" placeholder="45000" />
+        </div>
+        <div>
+          <label>Prazo da viagem</label>
+          <select class="input select" name="timeframe">
+            <option value="7">Até 30 dias</option>
+            <option value="45">45–90 dias</option>
+            <option value="120">+ 90 dias</option>
+          </select>
+        </div>
+        <div>
+          <label>Passageiros</label>
+          <input class="input" name="pax" type="number" min="1" value="2" />
+        </div>
+        <div class="full">
+          <label>Contexto</label>
+          <textarea class="input" name="notes" rows="4" placeholder="Ex.: lua de mel, datas flexíveis, quer hotel 5 estrelas..."></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn secondary" type="reset">Limpar</button>
+        <button class="btn primary" type="submit">Salvar lead</button>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="templateReply">
+Olá {nome}! Tudo bem? 😊
+
+Vi aqui seu interesse em {destino}. Já separei uma direção inicial para te ajudar a avançar com mais segurança.
+
+Se quiser, eu posso te mandar ainda hoje uma sugestão enxuta com faixa de investimento, melhor janela e tipo de hospedagem.
+
+Se fizer sentido, me responde com:
+1) cidade de saída
+2) mês desejado
+3) orçamento aproximado
+
+Aí eu te devolvo algo bem assertivo ✈️
+  </template>
+
+  <div id="toast"></div>
+  <script src="crm_3lg_v3_integracoes.js"></script>
+</body>
+</html>
