@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3LG Turismo CRM — V3 Integrações</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #181c27;
+      --surface2: #1e2333;
+      --border: #252b3b;
+      --accent: #3b82f6;
+      --accent2: #6366f1;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --orange: #f97316;
+      --text: #f1f5f9;
+      --text2: #94a3b8;
+      --text3: #64748b;
+      --radius: 10px;
+      --shadow: 0 4px 24px rgba(0,0,0,.4);
+      --font: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.5; }
+
+    /* Layout */
+    .app-shell { display: flex; height: 100vh; overflow: hidden; }
+    .sidebar { width: 240px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Brand */
+    .brand { display: flex; align-items: center; gap: 12px; padding: 20px 16px; border-bottom: 1px solid var(--border); }
+    .brand-logo { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; letter-spacing: -0.5px; flex-shrink: 0; }
+    .brand h1 { font-size: 15px; font-weight: 700; color: var(--text); }
+    .brand p { font-size: 11px; color: var(--text3); }
+
+    /* Menu */
+    .menu { padding: 12px 8px; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .menu-item { width: 100%; text-align: left; background: none; border: none; color: var(--text2); font-family: var(--font); font-size: 13.5px; font-weight: 500; padding: 9px 12px; border-radius: 8px; cursor: pointer; transition: all .15s; }
+    .menu-item:hover { background: var(--surface2); color: var(--text); }
+    .menu-item.active { background: rgba(59,130,246,.15); color: var(--accent); font-weight: 600; }
+
+    /* Sidebar footer */
+    .sidebar-footer { padding: 16px; border-top: 1px solid var(--border); }
+    .sidebar-footer p { font-size: 11px; color: var(--text3); margin-top: 8px; line-height: 1.5; }
+
+    /* Topbar */
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
+    .topbar h2 { font-size: 18px; font-weight: 700; }
+    .topbar p { font-size: 12px; color: var(--text3); margin-top: 2px; }
+    .topbar-actions { display: flex; gap: 8px; }
+
+    /* Pages */
+    .page { display: none; flex: 1; overflow-y: auto; padding: 24px; flex-direction: column; gap: 20px; }
+    .page.active { display: flex; }
+
+    /* Buttons */
+    .btn { font-family: var(--font); font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .btn.primary { background: var(--accent); color: #fff; }
+    .btn.primary:hover { background: #2563eb; }
+    .btn.secondary { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+    .btn.secondary:hover { background: var(--border); color: var(--text); }
+    .btn.ghost { background: none; color: var(--text3); border: 1px solid var(--border); }
+    .btn.ghost:hover { color: var(--text); }
+    .btn.white { background: #fff; color: #1e293b; }
+    .btn.white:hover { background: #f1f5f9; }
+    .btn.danger { background: var(--red); color: #fff; }
+    .btn.small { font-size: 12px; padding: 5px 10px; }
+
+    /* Cards */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+    .card.no-padding { padding: 0; overflow: hidden; }
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; gap: 12px; }
+    .card-header h3 { font-size: 15px; font-weight: 700; }
+    .card-header p { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+    /* Grid */
+    .grid { display: grid; gap: 20px; }
+    .grid.two { grid-template-columns: 1fr 1fr; }
+    .grid.two-fixed { grid-template-columns: 420px 1fr; }
+    .grid.three { grid-template-columns: repeat(3, 1fr); }
+    .grid.four { grid-template-columns: repeat(4, 1fr); }
+
+    /* Pills */
+    .pill { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
+    .pill.success { background: rgba(34,197,94,.12); color: var(--green); border-color: rgba(34,197,94,.2); }
+    .pill.warning { background: rgba(234,179,8,.12); color: var(--yellow); border-color: rgba(234,179,8,.2); }
+    .pill.danger { background: rgba(239,68,68,.12); color: var(--red); border-color: rgba(239,68,68,.2); }
+    .pill.info { background: rgba(59,130,246,.12); color: var(--accent); border-color: rgba(59,130,246,.2); }
+    .pill.purple { background: rgba(99,102,241,.12); color: var(--accent2); border-color: rgba(99,102,241,.2); }
+
+    /* Stack */
+    .stack { display: flex; flex-direction: column; gap: 10px; }
+
+    /* KPI Grid */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+    .kpi-card .kpi-label { font-size: 11px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    .kpi-card .kpi-value { font-size: 28px; font-weight: 800; margin: 4px 0 6px; }
+    .kpi-card .kpi-sub { font-size: 12px; color: var(--text3); }
+
+    /* Hero Banner */
+    .hero-banner { background: linear-gradient(135deg, #1e3a5f 0%, #1a1f35 100%); border: 1px solid rgba(59,130,246,.2); border-radius: var(--radius); padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .hero-banner h3 { font-size: 18px; font-weight: 700; margin: 8px 0 6px; }
+    .hero-banner p { font-size: 13px; color: #94a3b8; max-width: 520px; }
+    .hero-actions { display: flex; gap: 10px; flex-shrink: 0; }
+
+    /* Input / Form */
+    .input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--font); font-size: 13px; padding: 9px 12px; outline: none; transition: border-color .15s; }
+    .input:focus { border-color: var(--accent); }
+    .input.select { cursor: pointer; }
+    textarea.input { resize: vertical; }
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .form-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .form-actions.left { justify-content: flex-start; }
+
+    /* Toolbar */
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .toolbar-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .toolbar .input { width: 220px; }
+
+    /* Kanban */
+    .kanban { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; }
+    .kanban-col { min-width: 210px; flex-shrink: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .kanban-col-header { padding: 12px 14px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .kanban-col-header h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text2); }
+    .kanban-col-header .count { background: var(--bg); border: 1px solid var(--border); border-radius: 20px; font-size: 11px; font-weight: 700; padding: 1px 8px; color: var(--text3); }
+    .kanban-cards { padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 60px; }
+    .lead-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; cursor: pointer; transition: all .15s; }
+    .lead-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .lead-card .lead-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .lead-card .lead-meta { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 6px; }
+    .lead-card .lead-score { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(59,130,246,.15); color: var(--accent); }
+
+    /* Chat / Inbox */
+    .conversation-sidebar { display: flex; flex-direction: column; height: 100%; overflow-y: auto; }
+    .conv-item { padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .15s; }
+    .conv-item:hover, .conv-item.active { background: var(--surface2); }
+    .conv-item .conv-name { font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+    .conv-item .conv-preview { font-size: 12px; color: var(--text3); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .conv-item .conv-time { font-size: 11px; color: var(--text3); }
+    .chat-window { display: flex; flex-direction: column; height: 100%; }
+    .chat-header { padding: 14px 16px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 14px; background: var(--surface); }
+    .chat-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .chat-footer { padding: 12px 16px; border-top: 1px solid var(--border); }
+    .chat-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+    .chat-actions.between { justify-content: space-between; }
+    .inline-actions { display: flex; gap: 8px; }
+    .inline-meta { font-size: 12px; color: var(--text3); }
+    .msg { max-width: 70%; padding: 10px 13px; border-radius: 10px; font-size: 13px; line-height: 1.5; }
+    .msg.in { background: var(--surface2); border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 3px; }
+    .msg.out { background: rgba(59,130,246,.2); border: 1px solid rgba(59,130,246,.25); align-self: flex-end; border-bottom-right-radius: 3px; }
+    .msg .msg-time { font-size: 10px; color: var(--text3); margin-top: 4px; text-align: right; }
+
+    /* Timeline */
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .timeline-item { display: flex; gap: 14px; padding: 12px 0; position: relative; }
+    .timeline-item:not(:last-child)::after { content: ''; position: absolute; left: 15px; top: 36px; bottom: 0; width: 2px; background: var(--border); }
+    .tl-dot { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; z-index: 1; }
+    .tl-content { flex: 1; }
+    .tl-content .tl-title { font-size: 13px; font-weight: 600; }
+    .tl-content .tl-desc { font-size: 12px; color: var(--text3); margin-top: 2px; }
+    .tl-content .tl-time { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+    /* Connector row */
+    .connector-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; }
+    .connector-info { display: flex; align-items: center; gap: 10px; }
+    .connector-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+    /* Event row */
+    .event-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; }
+    .event-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+    .event-text { font-size: 12px; }
+    .event-text .event-title { font-weight: 600; }
+    .event-text .event-sub { color: var(--text3); margin-top: 2px; }
+
+    /* Action row */
+    .action-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; }
+    .action-left { display: flex; align-items: center; gap: 10px; }
+    .action-icon { font-size: 18px; }
+    .action-text .action-title { font-size: 13px; font-weight: 600; }
+    .action-text .action-sub { font-size: 11px; color: var(--text3); }
+
+    /* Automation row */
+    .automation-row { padding: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; }
+    .automation-row .auto-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .automation-row .auto-meta { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 8px; }
+
+    /* Client card */
+    .client-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; }
+    .client-info { display: flex; align-items: center; gap: 10px; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+    .client-meta .client-name { font-size: 13px; font-weight: 600; }
+    .client-meta .client-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+    /* Perf row */
+    .perf-row { padding: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; }
+    .perf-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .perf-header .perf-label { font-size: 13px; font-weight: 600; }
+    .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .4s; }
+
+    /* Modal */
+    .modal { background: rgba(0,0,0,.6); border: none; padding: 0; width: 100%; max-width: 560px; border-radius: 14px; backdrop-filter: blur(4px); }
+    .modal::backdrop { background: rgba(0,0,0,.6); }
+    .modal-content { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 0; overflow: hidden; }
+    .modal-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+    .modal-header h3 { font-size: 16px; font-weight: 700; }
+    .modal-header p { font-size: 12px; color: var(--text3); margin-top: 3px; }
+    .modal-content .form-grid { padding: 20px 24px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid var(--border); }
+
+    /* Blueprint */
+    .blueprint-step { display: flex; align-items: flex-start; gap: 12px; padding: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; }
+    .blueprint-num { width: 24px; height: 24px; border-radius: 6px; background: rgba(59,130,246,.15); color: var(--accent); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .blueprint-text .bp-title { font-size: 12px; font-weight: 600; }
+    .blueprint-text .bp-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+    /* Ops checklist */
+    .check-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
+    .check-item input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+    .check-item label { font-size: 13px; cursor: pointer; flex: 1; }
+    .check-item.done label { text-decoration: line-through; color: var(--text3); }
+
+    /* Toast */
+    #toast { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+    .toast-msg { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 18px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow); animation: slideIn .2s ease; max-width: 320px; }
+    .toast-msg.success { border-color: rgba(34,197,94,.3); background: rgba(34,197,94,.1); color: var(--green); }
+    .toast-msg.info { border-color: rgba(59,130,246,.3); background: rgba(59,130,246,.1); color: var(--accent); }
+    @keyframes slideIn { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* Responsive hint */
+    @media (max-width: 1100px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .grid.two-fixed { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 800px) {
+      .grid.two { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">3LG</div>
+        <div>
+          <h1>CRM V3</h1>
+          <p>WhatsApp + Instagram</p>
+        </div>
+      </div>
+      <nav class="menu">
+        <button class="menu-item active" data-page="dashboard">🏠 Dashboard</button>
+        <button class="menu-item" data-page="leads">📋 Leads</button>
+        <button class="menu-item" data-page="clientes">👥 Clientes</button>
+        <button class="menu-item" data-page="inbox">💬 Inbox Omnichannel</button>
+        <button class="menu-item" data-page="integracoes">🔗 Integrações Meta</button>
+        <button class="menu-item" data-page="operacao">⚙️ Operação</button>
+        <button class="menu-item" data-page="automacoes">🤖 Automações</button>
+        <button class="menu-item" data-page="analytics">📊 Analytics</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="pill success">V3 Integrada</div>
+        <p>WhatsApp +55(11)93911-5806 · Instagram @3lgturismo · Página 3LG Turismo</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSubtitle">Visão executiva com canais Meta conectáveis.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn secondary" id="seedBtn">↺ Recarregar demo</button>
+          <button class="btn secondary" id="exportBtn">⬇ Exportar JSON</button>
+          <button class="btn primary" id="openLeadModalBtn">+ Captura rápida</button>
+        </div>
+      </header>
+
+      <!-- DASHBOARD -->
+      <section class="page active" id="page-dashboard">
+        <div class="hero-banner">
+          <div>
+            <span class="pill info">Meta Connectors</span>
+            <h3>CRM preparado para WhatsApp Cloud API e Instagram Messaging API</h3>
+            <p>Gerencie conexões, receba eventos simulados por webhook, crie leads automaticamente e envie mensagens pelo inbox unificado.</p>
+          </div>
+          <div class="hero-actions">
+            <button class="btn white" data-page-link="integracoes">Configurar integrações</button>
+            <button class="btn secondary" data-page-link="inbox">Abrir inbox</button>
+          </div>
+        </div>
+        <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="grid two">
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Conectores ativos</h3><p>Status operacional dos canais</p></div>
+            </div>
+            <div id="connectorOverview" class="stack"></div>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Leads quentes</h3><p>Priorizados por score, canal e timing</p></div>
+            </div>
+            <div id="hotLeadsList" class="stack"></div>
+          </section>
+        </div>
+        <div class="grid two">
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Eventos recentes de integração</h3><p>Webhook, sync de lead e entregas</p></div>
+            </div>
+            <div id="integrationEvents" class="stack"></div>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Próximas melhores ações</h3><p>Sugestões automáticas por lead</p></div>
+            </div>
+            <div id="nextActions" class="stack"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- LEADS -->
+      <section class="page" id="page-leads">
+        <div class="toolbar">
+          <div class="toolbar-group">
+            <input id="leadSearch" class="input" placeholder="Buscar por nome, destino ou canal" />
+            <select id="leadStageFilter" class="input select">
+              <option value="all">Todas as etapas</option>
+              <option value="novo">Novo</option>
+              <option value="qualificacao">Qualificação</option>
+              <option value="cotacao">Cotação</option>
+              <option value="proposta">Proposta</option>
+              <option value="negociacao">Negociação</option>
+              <option value="fechado">Fechado</option>
+            </select>
+            <select id="leadChannelFilter" class="input select">
+              <option value="all">Todos os canais</option>
+              <option value="WhatsApp">WhatsApp</option>
+              <option value="Instagram">Instagram</option>
+              <option value="Site">Site</option>
+              <option value="Indicação">Indicação</option>
+            </select>
+          </div>
+          <div class="toolbar-group">
+            <button class="btn secondary" id="sortScoreBtn">Ordenar por score</button>
+            <button class="btn primary" id="openLeadModalBtn2">+ Novo lead</button>
+          </div>
+        </div>
+        <div class="kanban" id="kanbanBoard"></div>
+      </section>
+
+      <!-- CLIENTES -->
+      <section class="page" id="page-clientes">
+        <div class="grid two-fixed">
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Cadastro inteligente</h3><p>Cadastro rápido + dados enriquecidos por origem Meta</p></div>
+            </div>
+            <form id="clientForm" class="form-grid">
+              <div><label>Nome*</label><input class="input" name="name" required placeholder="Ex.: Renata Vieira" /></div>
+              <div><label>WhatsApp*</label><input class="input" name="phone" required placeholder="(11) 99999-9999" /></div>
+              <div><label>E-mail</label><input class="input" name="email" type="email" placeholder="nome@email.com" /></div>
+              <div><label>Instagram</label><input class="input" name="instagram" placeholder="@perfil" /></div>
+              <div><label>Canal de origem</label>
+                <select class="input select" name="source">
+                  <option>WhatsApp</option><option>Instagram</option><option>Site</option><option>Indicação</option>
+                </select>
+              </div>
+              <div><label>Perfil de viagem</label>
+                <select class="input select" name="profile">
+                  <option>Casal</option><option>Família</option><option>Lua de mel</option><option>Corporativo</option><option>Solo</option>
+                </select>
+              </div>
+              <div><label>Orçamento estimado</label><input class="input" name="budget" placeholder="R$ 20.000" /></div>
+              <div><label>Destino de interesse</label><input class="input" name="destination" placeholder="Itália, Cancún, Japão..." /></div>
+              <div class="full"><label>Observações</label><textarea class="input" name="notes" rows="4" placeholder="Preferências, restrições, timing, evento especial..."></textarea></div>
+              <div class="full form-actions">
+                <button class="btn primary" type="submit">Salvar cliente</button>
+                <button class="btn secondary" type="reset">Limpar</button>
+              </div>
+            </form>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Base de clientes</h3><p>LTV, origem e histórico comercial</p></div>
+            </div>
+            <div id="clientsList" class="stack"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- INBOX -->
+      <section class="page" id="page-inbox">
+        <div class="grid two-fixed" style="grid-template-columns: 300px 1fr; height: calc(100vh - 120px);">
+          <section class="card no-padding" style="overflow:hidden;">
+            <div class="conversation-sidebar" id="conversationList"></div>
+          </section>
+          <section class="card no-padding">
+            <div class="chat-window">
+              <div class="chat-header" id="chatHeader">Selecione uma conversa</div>
+              <div class="chat-body" id="chatBody"></div>
+              <div class="chat-footer">
+                <textarea id="chatInput" class="input" rows="2" placeholder="Responder mensagem..."></textarea>
+                <div class="chat-actions between">
+                  <div class="inline-meta" id="sendChannelMeta"></div>
+                  <div class="inline-actions">
+                    <button class="btn secondary" id="templateReplyBtn">Usar template</button>
+                    <button class="btn primary" id="sendReplyBtn">Enviar via canal</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- INTEGRAÇÕES -->
+      <section class="page" id="page-integracoes">
+        <div class="grid two">
+          <section class="card">
+            <div class="card-header">
+              <div><h3>WhatsApp Cloud API</h3><p>Conector oficial para mensagens e webhooks</p></div>
+              <span class="pill" id="whatsappStatusBadge">Desconectado</span>
+            </div>
+            <form id="whatsappForm" class="form-grid">
+              <div><label>Número WhatsApp Business</label><input class="input" name="phoneNumber" value="+551193911-5806" readonly style="opacity:.7" /></div>
+              <div><label>Phone Number ID</label><input class="input" name="phoneNumberId" placeholder="Obtido no Meta Business Manager" /></div>
+              <div><label>WABA ID</label><input class="input" name="wabaId" placeholder="Obtido no Meta Business Manager" /></div>
+              <div><label>Webhook URL</label><input class="input" name="webhookUrl" placeholder="https://seu-backend.com/webhooks/meta" /></div>
+              <div><label>Verify Token</label><input class="input" name="verifyToken" value="3lgturismo_verify_token" /></div>
+              <div class="full"><label>Access Token (demo local)</label><input class="input" name="accessToken" placeholder="EAAG... (gerado no Meta for Developers)" /></div>
+              <div class="full form-actions left">
+                <button type="submit" class="btn primary">Salvar e conectar</button>
+                <button type="button" class="btn secondary" id="waDemoEventBtn">Simular webhook</button>
+                <button type="button" class="btn ghost" id="waSyncBtn">Criar lead demo</button>
+              </div>
+            </form>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Instagram Messaging API</h3><p>DMs, comentários qualificados e entrada de lead</p></div>
+              <span class="pill" id="instagramStatusBadge">Desconectado</span>
+            </div>
+            <form id="instagramForm" class="form-grid">
+              <div><label>Perfil Instagram</label><input class="input" name="igHandle" value="@3lgturismo" readonly style="opacity:.7" /></div>
+              <div><label>Página do Facebook</label><input class="input" name="fbPage" value="3LG Turismo" readonly style="opacity:.7" /></div>
+              <div><label>Instagram Business Account ID</label><input class="input" name="igAccountId" placeholder="Obtido no Meta Business Manager" /></div>
+              <div><label>Facebook Page ID</label><input class="input" name="pageId" placeholder="Obtido no Meta Business Manager" /></div>
+              <div><label>Webhook URL</label><input class="input" name="webhookUrl" placeholder="https://seu-backend.com/webhooks/meta" /></div>
+              <div><label>Verify Token</label><input class="input" name="verifyToken" value="3lgturismo_ig_token" /></div>
+              <div class="full"><label>Access Token (demo local)</label><input class="input" name="accessToken" placeholder="IGQVJ... (gerado no Meta for Developers)" /></div>
+              <div class="full form-actions left">
+                <button type="submit" class="btn primary">Salvar e conectar</button>
+                <button type="button" class="btn secondary" id="igDemoEventBtn">Simular DM</button>
+                <button type="button" class="btn ghost" id="igSyncBtn">Criar lead demo</button>
+              </div>
+            </form>
+          </section>
+        </div>
+        <div class="grid two">
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Mapa técnico de integração</h3><p>Resumo do fluxo de backend recomendado</p></div>
+            </div>
+            <div class="stack" id="integrationBlueprint"></div>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Eventos recebidos</h3><p>Payloads simulados e histórico local</p></div>
+            </div>
+            <div class="stack" id="integrationEventLog"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- OPERAÇÃO -->
+      <section class="page" id="page-operacao">
+        <div class="grid two">
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Checklist operacional dinâmico</h3><p>Documentos, emissão, comunicação e pós-venda</p></div>
+            </div>
+            <div id="opsChecklist" class="stack"></div>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Timeline unificada do cliente</h3><p>Mensagens, proposta, follow-up, pagamento e embarque</p></div>
+            </div>
+            <div id="timeline" class="timeline"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- AUTOMAÇÕES -->
+      <section class="page" id="page-automacoes">
+        <div class="grid two">
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Cadências sugeridas</h3><p>Playbooks por etapa do funil</p></div>
+            </div>
+            <div id="automationList" class="stack"></div>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Regras inteligentes</h3><p>Acionamentos de alertas e ações automáticas</p></div>
+            </div>
+            <div id="rulesList" class="stack"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- ANALYTICS -->
+      <section class="page" id="page-analytics">
+        <div class="grid two">
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Performance por origem</h3><p>Leads, taxa de avanço e valor projetado</p></div>
+            </div>
+            <div id="sourcePerformance" class="stack"></div>
+          </section>
+          <section class="card">
+            <div class="card-header">
+              <div><h3>Backlog estratégico</h3><p>Melhorias sugeridas para roadmap técnico</p></div>
+            </div>
+            <div id="backlogList" class="stack"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL DE LEAD -->
+  <dialog id="leadModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h3>Captura rápida de lead</h3>
+          <p>Modelo V3 com score automático e origem por canal</p>
+        </div>
+        <button class="btn ghost small" id="closeLeadModal">✕ Fechar</button>
+      </div>
+      <form id="leadForm">
+        <div class="form-grid" style="padding:20px 24px">
+          <div><label>Nome*</label><input class="input" name="name" required placeholder="Ex.: Bruno Souza" /></div>
+          <div><label>Canal*</label>
+            <select class="input select" name="channel" required>
+              <option>WhatsApp</option><option>Instagram</option><option>Site</option><option>Indicação</option>
+            </select>
+          </div>
+          <div><label>Destino</label><input class="input" name="destination" placeholder="Dubai + Maldivas" /></div>
+          <div><label>Orçamento estimado</label><input class="input" name="budget" placeholder="45000" /></div>
+          <div><label>Prazo da viagem</label>
+            <select class="input select" name="timeframe">
+              <option value="7">Até 30 dias</option>
+              <option value="45">45–90 dias</option>
+              <option value="120">+ 90 dias</option>
+            </select>
+          </div>
+          <div><label>Passageiros</label><input class="input" name="pax" type="number" min="1" value="2" /></div>
+          <div class="full"><label>Contexto</label><textarea class="input" name="notes" rows="3" placeholder="Ex.: lua de mel, datas flexíveis, quer hotel 5 estrelas..."></textarea></div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn secondary" type="reset">Limpar</button>
+          <button class="btn primary" type="submit">Salvar lead</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <div id="toast"></div>
+
+  <script>
+  // ─── STATE ────────────────────────────────────────────────────────────────
+  const PROFILE = {
+    whatsapp: '+55 (11) 93911-5806',
+    instagram: '@3lgturismo',
+    facebook: '3LG Turismo'
+  };
+
+  const STATE = {
+    leads: [],
+    clients: [],
+    conversations: [],
+    integrations: { whatsapp: true, instagram: true },
+    eventLog: [],
+    activeLead: null,
+    activeConv: null,
+    sortByScore: false
+  };
+
+  const PAGES = {
+    dashboard: 'Dashboard',
+    leads: 'Leads',
+    clientes: 'Clientes',
+    inbox: 'Inbox Omnichannel',
+    integracoes: 'Integrações Meta',
+    operacao: 'Operação',
+    automacoes: 'Automações',
+    analytics: 'Analytics'
+  };
+
+  const SUBTITLES = {
+    dashboard: 'Visão executiva com canais Meta conectáveis.',
+    leads: 'Pipeline de vendas com kanban e score automático.',
+    clientes: 'Gestão de base de clientes e histórico.',
+    inbox: 'Mensagens unificadas de WhatsApp e Instagram.',
+    integracoes: 'Configure e teste conectores Meta.',
+    operacao: 'Checklist e timeline do cliente.',
+    automacoes: 'Cadências e regras automáticas.',
+    analytics: 'Métricas de performance e backlog.'
+  };
+
+  const STAGES = ['novo','qualificacao','cotacao','proposta','negociacao','fechado'];
+  const STAGE_LABELS = { novo:'Novo', qualificacao:'Qualificação', cotacao:'Cotação', proposta:'Proposta', negociacao:'Negociação', fechado:'Fechado' };
+  const CHANNELS = ['WhatsApp','Instagram','Site','Indicação'];
+
+  const avatarColors = ['#3b82f6','#6366f1','#22c55e','#f97316','#ec4899','#06b6d4','#eab308'];
+  function avatarColor(name) {
+    let h = 0; for (let c of name) h = (h*31+c.charCodeAt(0))%avatarColors.length;
+    return avatarColors[h];
+  }
+  function initials(name) { return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
+  function fmtCurrency(v) { return 'R$ ' + Number(v||0).toLocaleString('pt-BR'); }
+  function rand(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+  function randInt(a,b) { return a + Math.floor(Math.random()*(b-a)); }
+  function now() { return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+
+  // ─── SEED DATA ────────────────────────────────────────────────────────────
+  const DESTINATIONS = ['Cancún','Maldivas','Dubai','Itália','Japão','Portugal','Miami','Paris','Grécia','Bali'];
+  const NAMES = ['Ana Clara','Bruno Costa','Camila Rocha','Diego Ferreira','Elisa Moura','Felipe Nunes','Gabriela Lima','Henrique Souza','Isabela Marques','João Pedro'];
+
+  function calcScore(lead) {
+    let s = 50;
+    if (lead.budget > 30000) s += 20;
+    if (lead.budget > 60000) s += 10;
+    if (+lead.timeframe <= 30) s += 15;
+    if (+lead.timeframe <= 7) s += 10;
+    if (lead.channel === 'WhatsApp') s += 5;
+    return Math.min(100, s);
+  }
+
+  function seed() {
+    STATE.leads = NAMES.map((name,i) => {
+      const budget = randInt(8,120)*1000;
+      const timeframe = rand(['7','45','120']);
+      const channel = rand(CHANNELS);
+      const stage = STAGES[Math.min(i%6, STAGES.length-1)];
+      const lead = { id: 'l'+Date.now()+i, name, channel, destination: rand(DESTINATIONS), budget, timeframe, pax: randInt(1,5), notes: '', stage, createdAt: new Date().toISOString() };
+      lead.score = calcScore(lead);
+      return lead;
+    });
+
+    STATE.clients = NAMES.slice(0,6).map((name,i) => ({
+      id: 'c'+i, name, phone: `(11) 9${randInt(1000,9999)}-${randInt(1000,9999)}`,
+      email: name.toLowerCase().replace(' ','.')+`@email.com`,
+      source: rand(CHANNELS), profile: rand(['Casal','Família','Lua de mel','Corporativo','Solo']),
+      budget: randInt(10,80)*1000, destination: rand(DESTINATIONS), ltv: randInt(1,5)*15000
+    }));
+
+    STATE.conversations = STATE.leads.slice(0,5).map(lead => ({
+      id: 'conv'+lead.id, leadId: lead.id, name: lead.name,
+      channel: lead.channel, lastMsg: `Oi! Tenho interesse em ${lead.destination}.`,
+      time: `${randInt(8,18)}:${String(randInt(0,59)).padStart(2,'0')}`,
+      messages: [
+        { dir:'in', text:`Oi! Tenho interesse em ${lead.destination}. Pode me ajudar?`, time: now() },
+        { dir:'out', text:`Olá ${lead.name.split(' ')[0]}! Claro, já temos ótimas opções para ${lead.destination} 😊`, time: now() }
+      ]
+    }));
+
+    STATE.eventLog = [
+      { type:'webhook', channel:'WhatsApp', msg:'Msg recebida em +55(11)93911-5806: "Olá, quero viajar para Cancún!"', time: now() },
+      { type:'sync', channel:'Instagram', msg:'DM recebida para @3lgturismo: "Vi o post de Maldivas!"', time: now() },
+      { type:'delivery', channel:'WhatsApp', msg:'Mensagem enviada via +55(11)93911-5806 para lead qualificado', time: now() },
+      { type:'webhook', channel:'Facebook', msg:'Comentário na página 3LG Turismo: "Quanto custa Dubai?"', time: now() },
+    ];
+
+    renderAll();
+    toast('Demo recarregado com sucesso!','success');
+  }
+
+  // ─── RENDER ───────────────────────────────────────────────────────────────
+  function renderAll() {
+    renderKPIs();
+    renderConnectors();
+    renderHotLeads();
+    renderIntegrationEvents();
+    renderNextActions();
+    renderKanban();
+    renderClients();
+    renderInbox();
+    renderIntegrations();
+    renderOps();
+    renderAutomations();
+    renderAnalytics();
+  }
+
+  function renderKPIs() {
+    const hot = STATE.leads.filter(l=>l.score>=70).length;
+    const pipeline = STATE.leads.reduce((a,l)=>a+l.budget,0);
+    const fechados = STATE.leads.filter(l=>l.stage==='fechado').length;
+    const kpis = [
+      { label:'Leads ativos', value: STATE.leads.length, sub:`${hot} quentes (score ≥70)`, color:'#3b82f6' },
+      { label:'Pipeline total', value: fmtCurrency(pipeline), sub:'Orçamento consolidado', color:'#22c55e' },
+      { label:'Leads fechados', value: fechados, sub:`${Math.round(fechados/STATE.leads.length*100)||0}% taxa de conversão`, color:'#6366f1' },
+      { label:'Canais ativos', value: STATE.integrations.whatsapp + STATE.integrations.instagram, sub:'WhatsApp · Instagram', color:'#f97316' }
+    ];
+    document.getElementById('kpiGrid').innerHTML = kpis.map(k=>`
+      <div class="kpi-card">
+        <div class="kpi-label">${k.label}</div>
+        <div class="kpi-value" style="color:${k.color}">${k.value}</div>
+        <div class="kpi-sub">${k.sub}</div>
+      </div>`).join('');
+  }
+
+  function renderConnectors() {
+    const connectors = [
+      { icon:'💬', name:'WhatsApp · +55(11)93911-5806', sub:'Meta Business Platform · 3LG Turismo', status: STATE.integrations.whatsapp },
+      { icon:'📸', name:'Instagram · @3lgturismo', sub:'Meta for Developers · Pág. 3LG Turismo', status: STATE.integrations.instagram },
+      { icon:'🔗', name:'Webhook Receiver', sub:'Endpoint de entrada', status: true },
+      { icon:'📧', name:'Lead Sync Engine', sub:'Criação automática', status: true }
+    ];
+    document.getElementById('connectorOverview').innerHTML = connectors.map(c=>`
+      <div class="connector-row">
+        <div class="connector-info">
+          <div class="connector-icon" style="background:${c.status?'rgba(34,197,94,.1)':'rgba(100,116,139,.1)'}">${c.icon}</div>
+          <div>
+            <div style="font-size:13px;font-weight:600">${c.name}</div>
+            <div style="font-size:11px;color:var(--text3)">${c.sub}</div>
+          </div>
+        </div>
+        <span class="pill ${c.status?'success':'danger'}">${c.status?'Online':'Offline'}</span>
+      </div>`).join('');
+  }
+
+  function renderHotLeads() {
+    const hot = [...STATE.leads].filter(l=>l.score>=70).sort((a,b)=>b.score-a.score).slice(0,5);
+    document.getElementById('hotLeadsList').innerHTML = hot.length ? hot.map(l=>`
+      <div class="lead-card" onclick="openLeadDetail('${l.id}')">
+        <div class="lead-name">${l.name}</div>
+        <div class="lead-meta">
+          <span>${l.channel}</span>·<span>${l.destination}</span>·<span>${fmtCurrency(l.budget)}</span>
+          <span class="lead-score">Score ${l.score}</span>
+        </div>
+      </div>`).join('') : '<div style="color:var(--text3);font-size:13px">Nenhum lead quente no momento.</div>';
+  }
+
+  function renderIntegrationEvents() {
+    const events = STATE.eventLog.slice(-4).reverse();
+    const colors = { webhook:'#3b82f6', sync:'#22c55e', delivery:'#6366f1' };
+    document.getElementById('integrationEvents').innerHTML = events.map(e=>`
+      <div class="event-row">
+        <div class="event-dot" style="background:${colors[e.type]||'#94a3b8'}"></div>
+        <div class="event-text">
+          <div class="event-title">${e.channel} · ${e.type}</div>
+          <div class="event-sub">${e.msg} — ${e.time}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderNextActions() {
+    const actions = [
+      { icon:'📞', title:'Ligar para Ana Clara', sub:'Score 92 · Cotação pendente há 2 dias' },
+      { icon:'📩', title:'Enviar proposta para Diego Ferreira', sub:'Orçamento R$ 85.000 · Japão · 3 pax' },
+      { icon:'🔔', title:'Follow-up com Camila Rocha', sub:'Sem resposta há 48h · WhatsApp' },
+      { icon:'✅', title:'Confirmar pagamento de Felipe Nunes', sub:'Negociação · Maldivas · vencimento hoje' }
+    ];
+    document.getElementById('nextActions').innerHTML = actions.map(a=>`
+      <div class="action-row">
+        <div class="action-left">
+          <span class="action-icon">${a.icon}</span>
+          <div class="action-text">
+            <div class="action-title">${a.title}</div>
+            <div class="action-sub">${a.sub}</div>
+          </div>
+        </div>
+        <button class="btn ghost small">Fazer agora</button>
+      </div>`).join('');
+  }
+
+  function renderKanban() {
+    const search = document.getElementById('leadSearch').value.toLowerCase();
+    const stageF = document.getElementById('leadStageFilter').value;
+    const channelF = document.getElementById('leadChannelFilter').value;
+
+    let leads = STATE.leads.filter(l => {
+      if (search && !l.name.toLowerCase().includes(search) && !l.destination.toLowerCase().includes(search) && !l.channel.toLowerCase().includes(search)) return false;
+      if (stageF !== 'all' && l.stage !== stageF) return false;
+      if (channelF !== 'all' && l.channel !== channelF) return false;
+      return true;
+    });
+
+    if (STATE.sortByScore) leads = [...leads].sort((a,b)=>b.score-a.score);
+
+    const stages = stageF === 'all' ? STAGES : [stageF];
+    document.getElementById('kanbanBoard').innerHTML = stages.map(stage => {
+      const cols = leads.filter(l=>l.stage===stage);
+      return `<div class="kanban-col">
+        <div class="kanban-col-header">
+          <h4>${STAGE_LABELS[stage]}</h4>
+          <span class="count">${cols.length}</span>
+        </div>
+        <div class="kanban-cards">
+          ${cols.map(l=>`
+            <div class="lead-card" onclick="openLeadDetail('${l.id}')">
+              <div class="lead-name">${l.name}</div>
+              <div class="lead-meta">
+                <span>${l.channel}</span>·<span>${l.destination}</span>
+                <span class="lead-score">S${l.score}</span>
+              </div>
+              <div style="font-size:11px;color:var(--text3);margin-top:4px">${fmtCurrency(l.budget)} · ${l.pax} pax</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderClients() {
+    document.getElementById('clientsList').innerHTML = STATE.clients.map(c=>`
+      <div class="client-row">
+        <div class="client-info">
+          <div class="avatar" style="background:${avatarColor(c.name)}">${initials(c.name)}</div>
+          <div class="client-meta">
+            <div class="client-name">${c.name}</div>
+            <div class="client-sub">${c.source} · ${c.destination} · LTV ${fmtCurrency(c.ltv)}</div>
+          </div>
+        </div>
+        <span class="pill info">${c.profile}</span>
+      </div>`).join('');
+  }
+
+  function renderInbox() {
+    document.getElementById('conversationList').innerHTML = STATE.conversations.map(c=>`
+      <div class="conv-item ${STATE.activeConv===c.id?'active':''}" onclick="selectConv('${c.id}')">
+        <div class="conv-name">
+          <span>${c.name}</span>
+          <span class="conv-time">${c.time}</span>
+        </div>
+        <div class="conv-preview">${c.channel} · ${c.lastMsg}</div>
+      </div>`).join('');
+
+    const conv = STATE.conversations.find(c=>c.id===STATE.activeConv);
+    if (conv) {
+      document.getElementById('chatHeader').textContent = `${conv.name} · ${conv.channel}`;
+      document.getElementById('sendChannelMeta').textContent = `Enviando via ${conv.channel}`;
+      document.getElementById('chatBody').innerHTML = conv.messages.map(m=>`
+        <div class="msg ${m.dir}">
+          ${m.text}
+          <div class="msg-time">${m.time}</div>
+        </div>`).join('');
+    }
+  }
+
+  function selectConv(id) {
+    STATE.activeConv = id;
+    renderInbox();
+    const body = document.getElementById('chatBody');
+    if (body) body.scrollTop = body.scrollHeight;
+  }
+
+  function renderIntegrations() {
+    const wa = STATE.integrations.whatsapp;
+    const ig = STATE.integrations.instagram;
+    document.getElementById('whatsappStatusBadge').textContent = wa ? 'Conectado' : 'Desconectado';
+    document.getElementById('whatsappStatusBadge').className = 'pill ' + (wa ? 'success' : 'danger');
+    document.getElementById('instagramStatusBadge').textContent = ig ? 'Conectado' : 'Desconectado';
+    document.getElementById('instagramStatusBadge').className = 'pill ' + (ig ? 'success' : 'danger');
+
+    const blueprint = [
+      { n:1, title:'Receber evento Meta via webhook', sub:'POST /webhooks/meta com payload assinado' },
+      { n:2, title:'Validar assinatura X-Hub-Signature', sub:'HMAC SHA-256 com App Secret' },
+      { n:3, title:'Parsear tipo de evento', sub:'messages · statuses · leads · comments' },
+      { n:4, title:'Criar ou atualizar lead no CRM', sub:'Busca por phone/igid, cria se inexistente' },
+      { n:5, title:'Enviar resposta via Graph API', sub:'POST /v18.0/{phoneNumberId}/messages' },
+      { n:6, title:'Registrar evento no log local', sub:'Para auditoria e dashboard' }
+    ];
+    document.getElementById('integrationBlueprint').innerHTML = blueprint.map(s=>`
+      <div class="blueprint-step">
+        <div class="blueprint-num">${s.n}</div>
+        <div class="blueprint-text">
+          <div class="bp-title">${s.title}</div>
+          <div class="bp-sub">${s.sub}</div>
+        </div>
+      </div>`).join('');
+
+    document.getElementById('integrationEventLog').innerHTML = STATE.eventLog.slice().reverse().slice(0,6).map(e=>`
+      <div class="event-row">
+        <div class="event-dot" style="background:${e.channel==='WhatsApp'?'#22c55e':'#6366f1'}"></div>
+        <div class="event-text">
+          <div class="event-title">${e.channel} · ${e.type}</div>
+          <div class="event-sub">${e.msg} — ${e.time}</div>
+        </div>
+      </div>`).join('') || '<div style="color:var(--text3);font-size:13px">Nenhum evento ainda. Use os botões de simulação.</div>';
+  }
+
+  function renderOps() {
+    const checks = [
+      'Receber documentos do passageiro',
+      'Confirmar dados de passaporte',
+      'Emitir passagens aéreas',
+      'Reservar hospedagem',
+      'Solicitar visto (se necessário)',
+      'Enviar itinerário detalhado',
+      'Confirmar seguro viagem',
+      'Check-in online realizado',
+      'Enviar vouchers ao cliente',
+      'Ligar 48h antes do embarque',
+      'Pós-venda: pesquisa de satisfação'
+    ];
+    document.getElementById('opsChecklist').innerHTML = checks.map((c,i)=>`
+      <div class="check-item" id="check${i}">
+        <input type="checkbox" id="cb${i}" onchange="toggleCheck(${i})" />
+        <label for="cb${i}">${c}</label>
+      </div>`).join('');
+
+    const tlItems = [
+      { icon:'💬', bg:'rgba(59,130,246,.15)', title:'1ª Mensagem recebida', desc:'WhatsApp · Lead criado automaticamente', time:'09:12' },
+      { icon:'📋', bg:'rgba(99,102,241,.15)', title:'Lead qualificado', desc:'Score 87 · Orçamento R$ 52.000', time:'09:45' },
+      { icon:'📄', bg:'rgba(234,179,8,.15)', title:'Proposta enviada', desc:'PDF com itinerário — Dubai 7 noites', time:'14:30' },
+      { icon:'✅', bg:'rgba(34,197,94,.15)', title:'Proposta aprovada', desc:'Cliente aceitou por WhatsApp', time:'16:50' },
+      { icon:'💳', bg:'rgba(249,115,22,.15)', title:'Pagamento confirmado', desc:'PIX · R$ 52.000', time:'17:10' },
+      { icon:'✈️', bg:'rgba(6,182,212,.15)', title:'Embarque', desc:'GRU → DXB · Voo EK-262', time:'28/07' }
+    ];
+    document.getElementById('timeline').innerHTML = tlItems.map(t=>`
+      <div class="timeline-item">
+        <div class="tl-dot" style="background:${t.bg}">${t.icon}</div>
+        <div class="tl-content">
+          <div class="tl-title">${t.title}</div>
+          <div class="tl-desc">${t.desc}</div>
+          <div class="tl-time">${t.time}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  function toggleCheck(i) {
+    const el = document.getElementById('check'+i);
+    if (el) el.classList.toggle('done', document.getElementById('cb'+i).checked);
+  }
+
+  function renderAutomations() {
+    const autos = [
+      { title:'Boas-vindas automático via WhatsApp', stage:'Novo', trigger:'Lead entra no CRM pelo canal WA', status:'Ativo' },
+      { title:'Follow-up após 24h sem resposta', stage:'Qualificação', trigger:'Lead sem interação por 24h', status:'Ativo' },
+      { title:'Envio de proposta template', stage:'Cotação', trigger:'Lead avança para cotação', status:'Ativo' },
+      { title:'Alerta de score alto para consultor', stage:'Qualquer', trigger:'Score ≥ 85', status:'Ativo' },
+      { title:'Reengajamento de leads frios', stage:'Qualificação', trigger:'Sem interação por 7 dias', status:'Pausado' }
+    ];
+    document.getElementById('automationList').innerHTML = autos.map(a=>`
+      <div class="automation-row">
+        <div class="auto-title">${a.title}</div>
+        <div class="auto-meta">
+          <span class="pill ${a.status==='Ativo'?'success':'warning'}">${a.status}</span>
+          <span>${a.stage}</span>·<span>${a.trigger}</span>
+        </div>
+      </div>`).join('');
+
+    const rules = [
+      { icon:'🔥', title:'Score ≥ 90', action:'Notificar gestor imediatamente' },
+      { icon:'⏰', title:'Lead parado > 5 dias na cotação', action:'Mover para negociação ou arquivar' },
+      { icon:'💰', title:'Orçamento > R$ 100k', action:'Escalar para consultor sênior' },
+      { icon:'📉', title:'Taxa de resposta < 30%', action:'Revisar cadência do canal' }
+    ];
+    document.getElementById('rulesList').innerHTML = rules.map(r=>`
+      <div class="action-row">
+        <div class="action-left">
+          <span class="action-icon">${r.icon}</span>
+          <div class="action-text">
+            <div class="action-title">${r.title}</div>
+            <div class="action-sub">${r.action}</div>
+          </div>
+        </div>
+        <span class="pill success">Ativa</span>
+      </div>`).join('');
+  }
+
+  function renderAnalytics() {
+    const sources = [
+      { label:'WhatsApp', leads:42, taxa:38, valor:1200000, pct:85 },
+      { label:'Instagram', leads:28, taxa:29, valor:750000, pct:65 },
+      { label:'Indicação', leads:15, taxa:60, valor:900000, pct:90 },
+      { label:'Site', leads:10, taxa:20, valor:250000, pct:40 }
+    ];
+    document.getElementById('sourcePerformance').innerHTML = sources.map(s=>`
+      <div class="perf-row">
+        <div class="perf-header">
+          <span class="perf-label">${s.label}</span>
+          <span style="font-size:12px;color:var(--text3)">${s.leads} leads · ${s.taxa}% avanço · ${fmtCurrency(s.valor)}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${s.pct}%"></div></div>
+      </div>`).join('');
+
+    const backlog = [
+      { title:'Integração CRM ↔ Google Calendar', prio:'Alta', tag:'Automação' },
+      { title:'Dashboard de vendas em tempo real', prio:'Média', tag:'Analytics' },
+      { title:'Chatbot qualificador com IA', prio:'Alta', tag:'IA' },
+      { title:'App mobile para consultores', prio:'Baixa', tag:'Mobile' },
+      { title:'Relatório de ROI por canal', prio:'Média', tag:'Analytics' }
+    ];
+    const prioColor = { Alta:'danger', Média:'warning', Baixa:'info' };
+    document.getElementById('backlogList').innerHTML = backlog.map(b=>`
+      <div class="action-row">
+        <div class="action-left">
+          <div class="action-text">
+            <div class="action-title">${b.title}</div>
+            <div class="action-sub">${b.tag}</div>
+          </div>
+        </div>
+        <span class="pill ${prioColor[b.prio]}">${b.prio}</span>
+      </div>`).join('');
+  }
+
+  // ─── NAVIGATION ───────────────────────────────────────────────────────────
+  function navigateTo(page) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.menu-item').forEach(b=>b.classList.remove('active'));
+    const pg = document.getElementById('page-'+page);
+    if (pg) pg.classList.add('active');
+    const btn = document.querySelector(`[data-page="${page}"]`);
+    if (btn) btn.classList.add('active');
+    document.getElementById('pageTitle').textContent = PAGES[page] || page;
+    document.getElementById('pageSubtitle').textContent = SUBTITLES[page] || '';
+  }
+
+  document.querySelectorAll('.menu-item').forEach(btn => {
+    btn.addEventListener('click', () => navigateTo(btn.dataset.page));
+  });
+
+  document.querySelectorAll('[data-page-link]').forEach(btn => {
+    btn.addEventListener('click', () => navigateTo(btn.dataset.pageLink));
+  });
+
+  // ─── MODAL ────────────────────────────────────────────────────────────────
+  const modal = document.getElementById('leadModal');
+
+  function openLeadModal() { modal.showModal(); }
+  function closeLeadModal() { modal.close(); }
+
+  document.getElementById('openLeadModalBtn').addEventListener('click', openLeadModal);
+  document.getElementById('openLeadModalBtn2').addEventListener('click', openLeadModal);
+  document.getElementById('closeLeadModal').addEventListener('click', closeLeadModal);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.close(); });
+
+  document.getElementById('leadForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const data = Object.fromEntries(fd);
+    const lead = { id:'l'+Date.now(), ...data, stage:'novo', createdAt: new Date().toISOString() };
+    lead.score = calcScore(lead);
+    STATE.leads.unshift(lead);
+    renderAll();
+    closeLeadModal();
+    e.target.reset();
+    toast(`Lead ${data.name} adicionado! Score: ${lead.score}`, 'success');
+  });
+
+  // ─── CLIENT FORM ──────────────────────────────────────────────────────────
+  document.getElementById('clientForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const data = Object.fromEntries(fd);
+    const client = { id:'c'+Date.now(), ...data, ltv: +data.budget || 0 };
+    STATE.clients.unshift(client);
+    renderClients();
+    e.target.reset();
+    toast(`Cliente ${data.name} cadastrado!`, 'success');
+  });
+
+  // ─── INTEGRATION FORMS ────────────────────────────────────────────────────
+  document.getElementById('whatsappForm').addEventListener('submit', e => {
+    e.preventDefault();
+    STATE.integrations.whatsapp = true;
+    renderIntegrations();
+    renderConnectors();
+    renderKPIs();
+    toast('WhatsApp Cloud API conectado!', 'success');
+  });
+
+  document.getElementById('instagramForm').addEventListener('submit', e => {
+    e.preventDefault();
+    STATE.integrations.instagram = true;
+    renderIntegrations();
+    renderConnectors();
+    renderKPIs();
+    toast('Instagram Messaging API conectado!', 'success');
+  });
+
+  // ─── DEMO BUTTONS ─────────────────────────────────────────────────────────
+  document.getElementById('waDemoEventBtn').addEventListener('click', () => {
+    const lead = rand(STATE.leads);
+    STATE.eventLog.push({ type:'webhook', channel:'WhatsApp', msg:`[+55(11)93911-5806 → 3LG] ${lead.name}: "Quando sai promoção para ${lead.destination}?"`, time: now() });
+    renderIntegrations();
+    renderIntegrationEvents();
+    toast('Evento WhatsApp simulado em +55(11)93911-5806!', 'info');
+  });
+
+  document.getElementById('igDemoEventBtn').addEventListener('click', () => {
+    const lead = rand(STATE.leads);
+    STATE.eventLog.push({ type:'webhook', channel:'Instagram', msg:`[@3lgturismo DM] @${lead.name.toLowerCase().replace(' ','_')}: "Vi o post de ${lead.destination}!"`, time: now() });
+    renderIntegrations();
+    renderIntegrationEvents();
+    toast('DM simulada para @3lgturismo!', 'info');
+  });
+
+  document.getElementById('waSyncBtn').addEventListener('click', () => {
+    const name = rand(NAMES)+' (WA Demo)';
+    const lead = { id:'l'+Date.now(), name, channel:'WhatsApp', destination: rand(DESTINATIONS), budget: randInt(10,80)*1000, timeframe:'45', pax:2, notes:'Lead criado por sync demo', stage:'novo', createdAt: new Date().toISOString() };
+    lead.score = calcScore(lead);
+    STATE.leads.unshift(lead);
+    STATE.eventLog.push({ type:'sync', channel:'WhatsApp', msg:`Lead criado: ${name}`, time: now() });
+    renderAll();
+    toast(`Lead demo ${name} criado via WhatsApp!`, 'success');
+  });
+
+  document.getElementById('igSyncBtn').addEventListener('click', () => {
+    const name = rand(NAMES)+' (IG Demo)';
+    const lead = { id:'l'+Date.now(), name, channel:'Instagram', destination: rand(DESTINATIONS), budget: randInt(10,80)*1000, timeframe:'120', pax:2, notes:'Lead criado por sync demo', stage:'novo', createdAt: new Date().toISOString() };
+    lead.score = calcScore(lead);
+    STATE.leads.unshift(lead);
+    STATE.eventLog.push({ type:'sync', channel:'Instagram', msg:`Lead criado: ${name}`, time: now() });
+    renderAll();
+    toast(`Lead demo ${name} criado via Instagram!`, 'success');
+  });
+
+  // ─── INBOX SEND ───────────────────────────────────────────────────────────
+  document.getElementById('sendReplyBtn').addEventListener('click', () => {
+    const text = document.getElementById('chatInput').value.trim();
+    if (!text || !STATE.activeConv) { toast('Selecione uma conversa e escreva uma mensagem.', 'info'); return; }
+    const conv = STATE.conversations.find(c=>c.id===STATE.activeConv);
+    if (conv) {
+      conv.messages.push({ dir:'out', text, time: now() });
+      conv.lastMsg = text;
+      document.getElementById('chatInput').value = '';
+      renderInbox();
+      const body = document.getElementById('chatBody');
+      if (body) body.scrollTop = body.scrollHeight;
+      toast('Mensagem enviada!', 'success');
+    }
+  });
+
+  document.getElementById('templateReplyBtn').addEventListener('click', () => {
+    const conv = STATE.conversations.find(c=>c.id===STATE.activeConv);
+    const lead = conv ? STATE.leads.find(l=>l.id===conv.leadId) : null;
+    if (!lead) { toast('Selecione uma conversa primeiro.', 'info'); return; }
+    const tmpl = `Olá ${lead.name.split(' ')[0]}! Tudo bem? 😊\n\nVi seu interesse em ${lead.destination}. Posso te mandar uma sugestão hoje com faixa de investimento, melhor janela e hospedagem.\n\nMe responde com:\n1) Cidade de saída\n2) Mês desejado\n3) Orçamento aproximado\n\nAssim te devolvo algo bem assertivo ✈️`;
+    document.getElementById('chatInput').value = tmpl;
+  });
+
+  // ─── SORT / FILTER ────────────────────────────────────────────────────────
+  document.getElementById('sortScoreBtn').addEventListener('click', () => {
+    STATE.sortByScore = !STATE.sortByScore;
+    document.getElementById('sortScoreBtn').textContent = STATE.sortByScore ? '✓ Ordenado por score' : 'Ordenar por score';
+    renderKanban();
+  });
+
+  ['leadSearch','leadStageFilter','leadChannelFilter'].forEach(id => {
+    document.getElementById(id).addEventListener('input', renderKanban);
+    document.getElementById(id).addEventListener('change', renderKanban);
+  });
+
+  // ─── EXPORT ───────────────────────────────────────────────────────────────
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const data = JSON.stringify({ leads: STATE.leads, clients: STATE.clients, eventLog: STATE.eventLog }, null, 2);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([data], { type:'application/json' }));
+    a.download = '3lg_crm_export.json';
+    a.click();
+    toast('Exportado com sucesso!', 'success');
+  });
+
+  document.getElementById('seedBtn').addEventListener('click', seed);
+
+  // ─── LEAD DETAIL (preview no inbox) ───────────────────────────────────────
+  function openLeadDetail(id) {
+    const lead = STATE.leads.find(l=>l.id===id);
+    if (!lead) return;
+    const conv = STATE.conversations.find(c=>c.leadId===id);
+    if (conv) {
+      STATE.activeConv = conv.id;
+      navigateTo('inbox');
+      renderInbox();
+    } else {
+      toast(`Lead: ${lead.name} · Score ${lead.score} · ${lead.destination} · ${fmtCurrency(lead.budget)}`, 'info');
+    }
+  }
+
+  // ─── TOAST ────────────────────────────────────────────────────────────────
+  function toast(msg, type='info') {
+    const el = document.createElement('div');
+    el.className = `toast-msg ${type}`;
+    el.textContent = msg;
+    document.getElementById('toast').appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+
+  // ─── INIT ─────────────────────────────────────────────────────────────────
+  seed();
+  </script>
+</body>
+</html>
